@@ -1,97 +1,273 @@
 {% extends "base.html" %}
 
-{% block title %}Data Table with Date Range Picker{% endblock %}
+{% block title %}Work Orders{% endblock %}
 
 {% block content %}
-    <h2 class="mb-3">Data Table with Date Range Filter</h2>
+<h2>Work Orders</h2>
 
-    <!-- Date Range Picker -->
-    <div class="mb-3">
-        <label for="daterange">Select Date Range:</label>
-        <input type="text" id="daterange" class="form-control" />
+<!-- Tabs for Work Orders -->
+<ul class="nav nav-tabs" role="tablist">
+    {% for id, work_order in work_orders.items() %}
+    <li class="nav-item" role="presentation">
+        <button class="nav-link {% if loop.first %}active{% endif %}" data-bs-toggle="tab"
+            data-bs-target="#content-{{ id }}" type="button" role="tab">
+            {{ work_order.work_order_number }}
+        </button>
+    </li>
+    {% endfor %}
+</ul>
+
+<!-- Tab Content -->
+<div class="tab-content mt-3">
+    {% for id, work_order in work_orders.items() %}
+    <div class="tab-pane fade {% if loop.first %}show active{% endif %}" id="content-{{ id }}" role="tabpanel">
+        <!-- Work Order Widget -->
+        <div class="work-order-widget card p-3 shadow-sm" data-id="{{ id }}">
+            <div class="widget-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Work Order #{{ work_order.work_order_number }}</h5>
+                <div>
+                    <!-- Icons with tooltips -->
+                    <i class="bi bi-pencil edit-btn text-primary fs-5 cursor-pointer" data-bs-toggle="tooltip" title="Edit"></i>
+                    <i class="bi bi-check-lg save-btn text-success fs-5 cursor-pointer d-none" data-bs-toggle="tooltip" title="Save"></i>
+                    <i class="bi bi-x-lg cancel-btn text-danger fs-5 cursor-pointer d-none" data-bs-toggle="tooltip" title="Cancel"></i>
+                </div>
+            </div>
+
+            <hr>
+
+            <div class="widget-body">
+                <div class="mb-2">
+                    <label class="fw-bold">Work Order:</label>
+                    <p class="view-mode">{{ work_order.work_order_number }}</p>
+                    <input type="text" class="edit-mode form-control d-none" value="{{ work_order.work_order_number }}">
+                </div>
+
+                <div class="mb-2">
+                    <label class="fw-bold">Server ID:</label>
+                    <p class="view-mode">{{ work_order.server_id }}</p>
+                    <input type="text" class="edit-mode form-control d-none" value="{{ work_order.server_id }}">
+                </div>
+
+                <div class="mb-2">
+                    <label class="fw-bold">Code Blue:</label>
+                    <p class="view-mode">{{ work_order.code_blue }}</p>
+                    <select class="edit-mode form-control d-none">
+                        <option value="YES" {% if work_order.code_blue == 'YES' %}selected{% endif %}>YES</option>
+                        <option value="NO" {% if work_order.code_blue == 'NO' %}selected{% endif %}>NO</option>
+                    </select>
+                </div>
+
+                <div class="mb-2">
+                    <label class="fw-bold">Scheduled Date:</label>
+                    <p class="view-mode">{{ work_order.scheduled_date }}</p>
+                    <input type="date" class="edit-mode form-control d-none" value="{{ work_order.scheduled_date }}">
+                </div>
+
+                <div class="mb-2">
+                    <label class="fw-bold">Escalate to Level 3:</label>
+                    <p class="view-mode">{{ 'Yes' if work_order.get('escalate') else 'No' }}</p>
+                    <input type="checkbox" class="edit-mode form-check-input d-none" {% if work_order.get('escalate') %}checked{% endif %}>
+                </div>
+            </div>
+        </div>
+        <!-- 🔸 Client Confirmation Card -->
+        <div class="client-info card p-3 shadow-sm mt-3" data-id="{{ id }}">
+            <div class="widget-header d-flex justify-content-between align-items-center">
+                <h6 class="mb-0">Client Details</h6>
+                <div>
+                    <i class="bi bi-pencil edit-client-btn text-primary fs-5 cursor-pointer" data-bs-toggle="tooltip" title="Edit"></i>
+                    <i class="bi bi-check-lg save-client-btn text-success fs-5 cursor-pointer d-none" data-bs-toggle="tooltip" title="Save"></i>
+                    <i class="bi bi-x-lg cancel-client-btn text-danger fs-5 cursor-pointer d-none" data-bs-toggle="tooltip" title="Cancel"></i>
+                </div>
+            </div>
+            <hr>
+    
+            <div class="widget-body">
+                <div class="mb-2">
+                    <label class="fw-bold">Client Service Specialist:</label>
+                    <p class="view-mode">{{ work_order.client_specialist }}</p>
+                    <input type="text" class="edit-mode form-control d-none" value="{{ work_order.client_specialist }}">
+                </div>
+    
+                <div class="mb-2">
+                    <label class="fw-bold">Client Confirmed:</label>
+                    <p class="view-mode">{{ work_order.client_confirmed }}</p>
+                    <div class="edit-mode d-none">
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="confirmed-{{ id }}" value="YES" {% if work_order.client_confirmed == 'YES' %}checked{% endif %}>
+                            <label class="form-check-label">Yes</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="confirmed-{{ id }}" value="NO" {% if work_order.client_confirmed == 'NO' %}checked{% endif %}>
+                            <label class="form-check-label">No</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="confirmed-{{ id }}" value="NA" {% if work_order.client_confirmed == 'NA' %}checked{% endif %}>
+                            <label class="form-check-label">N/A</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
+    {% endfor %}
 
-    <!-- Data Table -->
-    <table id="dataTable" class="table table-striped table-bordered dt-responsive nowrap">
-        <thead>
-            <tr>
-                <th>Date</th>
-                <th>Name</th>
-                <th>Amount ($)</th>
-            </tr>
-        </thead>
-        <tbody></tbody>
-    </table>
+    <!-- ✅ Toast Notification -->
+    <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 9999">
+    <div id="saveToast" class="toast align-items-center text-bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body">
+                ✅ Work order saved successfully!
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    </div>
+    </div>
+    
+</div>
 
-    <!-- ✅ jQuery (MUST BE FIRST) -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<!-- Bootstrap, jQuery & Bootstrap Icons -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
-    <!-- ✅ Moment.js (Fixes "moment is not defined" Error) -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
+<style>
+    .cursor-pointer { cursor: pointer; }
+    .fade-slide { transition: all 0.3s ease; }
+</style>
 
-    <!-- ✅ Bootstrap 5 -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    $(document).ready(function () {
+        // Initialize tooltips
+        const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+        tooltipTriggerList.forEach(tooltip => new bootstrap.Tooltip(tooltip));
 
-    <!-- ✅ DataTables -->
-    <link href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" rel="stylesheet">
-    <link href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css" rel="stylesheet">
-    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
-    <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
-    <script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap5.min.js"></script>
+        $(".edit-btn").click(function () {
+            let widget = $(this).closest(".work-order-widget");
+            widget.find(".view-mode").fadeOut(200);
+            widget.find(".edit-mode").removeClass("d-none").hide().fadeIn(200);
+            widget.find(".save-btn, .cancel-btn").removeClass("d-none").hide().fadeIn(200);
+            $(this).fadeOut(100);
+        });
 
-    <!-- ✅ Bootstrap Date Range Picker -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-daterangepicker/3.1/daterangepicker.min.css" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-daterangepicker/3.1/daterangepicker.min.js"></script>
-
-    <script>
-        $(document).ready(function() {
-            console.log("Page Loaded!");
-
-            // ✅ Fix: Moment.js must be loaded before Date Range Picker
-            console.log("Moment.js Version:", moment.version);
-
-            // Initialize Date Range Picker
-            $('#daterange').daterangepicker({
-                opens: 'left',
-                startDate: moment().subtract(30, 'days'),
-                endDate: moment(),
-                locale: { format: 'YYYY-MM-DD' }
-            }, function(start, end) {
-                console.log("Date range selected:", start.format('YYYY-MM-DD'), end.format('YYYY-MM-DD'));
-                table.ajax.reload();
+        $(".cancel-btn").click(function () {
+            let widget = $(this).closest(".work-order-widget");
+            widget.find(".edit-mode").fadeOut(200, function () {
+                $(this).addClass("d-none");
             });
 
-            // Initialize DataTable
-            let table = $('#dataTable').DataTable({
-                responsive: true,
-                processing: true,
-                serverSide: false,
-                ajax: {
-                    url: "/filter",
-                    type: "POST",
-                    contentType: "application/json",
-                    data: function() {
-                        return JSON.stringify({
-                            start_date: $('#daterange').data('daterangepicker').startDate.format('YYYY-MM-DD'),
-                            end_date: $('#daterange').data('daterangepicker').endDate.format('YYYY-MM-DD')
+            widget.find(".view-mode").fadeIn(200);
+            widget.find(".save-btn, .cancel-btn").fadeOut(100).addClass("d-none");
+            widget.find(".edit-btn").fadeIn(200);
+        });
+
+        $(".save-btn").click(function () {
+            let widget = $(this).closest(".work-order-widget");
+            let id = widget.data("id");
+
+            let updatedData = {
+                id: id,
+                work_order_number: widget.find("input[type='text']").eq(0).val(),
+                server_id: widget.find("input[type='text']").eq(1).val(),
+                code_blue: widget.find("select").val(),
+                scheduled_date: widget.find("input[type='date']").val(),
+                escalate: widget.find("input[type='checkbox']").is(":checked")
+            };
+
+            $.ajax({
+                url: "/update_work_order",
+                type: "POST",
+                contentType: "application/json",
+                data: JSON.stringify(updatedData),
+                success: function (response) {
+                    if (response.success) {
+                        // Update UI
+                        widget.find(".view-mode").eq(0).text(updatedData.work_order_number);
+                        widget.find(".view-mode").eq(1).text(updatedData.server_id);
+                        widget.find(".view-mode").eq(2).text(updatedData.code_blue);
+                        widget.find(".view-mode").eq(3).text(updatedData.scheduled_date);
+                        widget.find(".view-mode").eq(4).text(updatedData.escalate ? "Yes" : "No");
+
+                        // Switch back to view mode
+                        widget.find(".edit-mode").fadeOut(200, function () {
+                            $(this).addClass("d-none");
                         });
-                    },
-                    dataSrc: ""
-                },
-                columns: [
-                    { data: "Date" },
-                    { data: "Name" },
-                    { data: "Amount" }
-                ]
-            });
+                        widget.find(".view-mode").fadeIn(200);
+                        widget.find(".save-btn, .cancel-btn").fadeOut(100).addClass("d-none");
+                        widget.find(".edit-btn").fadeIn(200);
 
-            // Reload table when date range is changed
-            $('#daterange').on('apply.daterangepicker', function() {
-                console.log("Reloading table...");
-                table.ajax.reload();
+                        // ✅ Show toast
+                        let toast = new bootstrap.Toast(document.getElementById("saveToast"));
+                        toast.show();
+                    } else {
+                        alert("Error: " + response.message);
+                    }
+                },
+                error: function () {
+                    alert("Something went wrong while saving.");
+                }
             });
         });
-    </script>
+    });
+    // 🟢 CLIENT INFO HANDLERS
+$(".edit-client-btn").click(function () {
+    let card = $(this).closest(".client-info");
+    card.find(".view-mode").fadeOut(200);
+    card.find(".edit-mode").removeClass("d-none").hide().fadeIn(200);
+    card.find(".save-client-btn, .cancel-client-btn").removeClass("d-none").hide().fadeIn(200);
+    $(this).fadeOut(100);
+});
+
+$(".cancel-client-btn").click(function () {
+    let card = $(this).closest(".client-info");
+    card.find(".edit-mode").fadeOut(200, function () {
+        $(this).addClass("d-none");
+    });
+    card.find(".view-mode").fadeIn(200);
+    card.find(".save-client-btn, .cancel-client-btn").fadeOut(100).addClass("d-none");
+    card.find(".edit-client-btn").fadeIn(200);
+});
+
+$(".save-client-btn").click(function () {
+    let card = $(this).closest(".client-info");
+    let id = card.data("id");
+
+    let specialist = card.find("input[type='text']").val();
+    let confirmed = card.find("input[type='radio']:checked").val();
+
+    let updatedData = {
+        id: id,
+        client_specialist: specialist,
+        client_confirmed: confirmed
+    };
+
+    $.ajax({
+        url: "/update_work_order",
+        type: "POST",
+        contentType: "application/json",
+        data: JSON.stringify(updatedData),
+        success: function (response) {
+            if (response.success) {
+                card.find(".view-mode").eq(0).text(specialist);
+                card.find(".view-mode").eq(1).text(confirmed);
+
+                card.find(".edit-mode").fadeOut(200, function () {
+                    $(this).addClass("d-none");
+                });
+                card.find(".view-mode").fadeIn(200);
+                card.find(".save-client-btn, .cancel-client-btn").fadeOut(100).addClass("d-none");
+                card.find(".edit-client-btn").fadeIn(200);
+
+                let toast = new bootstrap.Toast(document.getElementById("saveToast"));
+                toast.show();
+            } else {
+                alert("Error: " + response.message);
+            }
+        }
+    });
+});
+
+</script>
+
 {% endblock %}
