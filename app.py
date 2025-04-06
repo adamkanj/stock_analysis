@@ -42,5 +42,13 @@ def update_work_order():
         return jsonify({"success": False, "message": "Work order not found!"})
 
 
+@app.route("/load_work_order/<int:order_id>")
+def load_work_order(order_id):
+    work_order = work_orders.get(order_id)
+    if not work_order:
+        return "Not found", 404
+    return render_template("_work_order_tab.html", id=order_id, work_order=work_order)
+
+
 if __name__ == "__main__":
     app.run(debug=True)

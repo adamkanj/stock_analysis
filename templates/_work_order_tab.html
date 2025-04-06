@@ -1,0 +1,78 @@
+<div class="tab-pane fade show active" id="content-{{ id }}" role="tabpanel">
+
+    <!-- Editable Info Card 1 -->
+    <div class="info-card card p-3 shadow-sm" data-id="{{ id }}">
+        <div class="widget-header d-flex justify-content-between align-items-center">
+            <h6 class="mb-0">Work Order Info</h6>
+            <div>
+                <i class="bi bi-pencil text-primary fs-5 cursor-pointer action-edit" data-bs-toggle="tooltip" title="Edit"></i>
+                <i class="bi bi-check-lg text-success fs-5 cursor-pointer action-save d-none" data-bs-toggle="tooltip" title="Save"></i>
+                <i class="bi bi-x-lg text-danger fs-5 cursor-pointer action-cancel d-none" data-bs-toggle="tooltip" title="Cancel"></i>
+            </div>
+        </div>
+        <hr>
+        <div class="widget-body">
+            <div class="mb-2">
+                <label class="fw-bold">Work Order:</label>
+                <p class="view-mode" data-field="work_order_number">{{ work_order.work_order_number }}</p>
+                <input name="work_order_number" class="edit-mode form-control d-none" value="{{ work_order.work_order_number }}">
+            </div>
+            <div class="mb-2">
+                <label class="fw-bold">Server ID:</label>
+                <p class="view-mode" data-field="server_id">{{ work_order.server_id }}</p>
+                <input name="server_id" class="edit-mode form-control d-none" value="{{ work_order.server_id }}">
+            </div>
+            <div class="mb-2">
+                <label class="fw-bold">Code Blue:</label>
+                <p class="view-mode" data-field="code_blue">{{ work_order.code_blue }}</p>
+                <select name="code_blue" class="edit-mode form-control d-none">
+                    <option value="YES" {% if work_order.code_blue == 'YES' %}selected{% endif %}>YES</option>
+                    <option value="NO" {% if work_order.code_blue == 'NO' %}selected{% endif %}>NO</option>
+                </select>
+            </div>
+            <div class="mb-2">
+                <label class="fw-bold">Scheduled Date:</label>
+                <p class="view-mode" data-field="scheduled_date">{{ work_order.scheduled_date }}</p>
+                <input name="scheduled_date" type="date" class="edit-mode form-control d-none" value="{{ work_order.scheduled_date }}">
+            </div>
+            <div class="mb-2">
+                <label class="fw-bold">Escalate to Level 3:</label>
+                <p class="view-mode" data-field="escalate">{{ 'Yes' if work_order.get('escalate') else 'No' }}</p>
+                <input name="escalate" type="checkbox" class="edit-mode form-check-input d-none" {% if work_order.get('escalate') %}checked{% endif %}>
+            </div>
+        </div>
+    </div>
+
+    <!-- Editable Info Card 2 -->
+    <div class="info-card card p-3 shadow-sm mt-3" data-id="{{ id }}">
+        <div class="widget-header d-flex justify-content-between align-items-center">
+            <h6 class="mb-0">Client Details</h6>
+            <div>
+                <i class="bi bi-pencil text-primary fs-5 cursor-pointer action-edit" data-bs-toggle="tooltip" title="Edit"></i>
+                <i class="bi bi-check-lg text-success fs-5 cursor-pointer action-save d-none" data-bs-toggle="tooltip" title="Save"></i>
+                <i class="bi bi-x-lg text-danger fs-5 cursor-pointer action-cancel d-none" data-bs-toggle="tooltip" title="Cancel"></i>
+            </div>
+        </div>
+        <hr>
+        <div class="widget-body">
+            <div class="mb-2">
+                <label class="fw-bold">Client Service Specialist:</label>
+                <p class="view-mode" data-field="client_specialist">{{ work_order.client_specialist }}</p>
+                <input name="client_specialist" class="edit-mode form-control d-none" value="{{ work_order.client_specialist }}">
+            </div>
+            <div class="mb-2">
+                <label class="fw-bold">Client Confirmed:</label>
+                <p class="view-mode" data-field="client_confirmed">{{ work_order.client_confirmed }}</p>
+                <div class="edit-mode d-none">
+                    {% for opt in ['YES', 'NO', 'NA'] %}
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input edit-radio" type="radio" name="client_confirmed_{{ id }}" value="{{ opt }}" data-field="client_confirmed" {% if work_order.client_confirmed == opt %}checked{% endif %}>
+                        <label class="form-check-label">{{ opt }}</label>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
